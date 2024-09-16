@@ -25,3 +25,4 @@ else: #fils
     print("je suis le fils, mon PID est: ", os.getpid())
     time.sleep(20)
     os._exit(3)
+    
