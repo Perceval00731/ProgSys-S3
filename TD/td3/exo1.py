@@ -28,3 +28,4 @@ except OSError as e:
 #cela va fonctionner mais que si le fichier exo1 n'existe pas deja
 
 #exo 5
+#cela ne va pas fonctionner car après la derniere execution nous n'avons plus les droist (droits 600 donc pas d'ecriture)
