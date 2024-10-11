@@ -10,7 +10,7 @@ while cmd != "quit":
         background = False
     
     pid = os.fork()
-    if pid == 0: # Processus enfant
+    if pid == 0: #enfant
         try:
             print(f"args: {args},   args[0]: {args[0]}")
             os.execvp(args[0], args)
@@ -18,7 +18,7 @@ while cmd != "quit":
             print(f"Erreur d'exécution de la commande: {e.strerror}")
             os._exit(1)
 
-    else: # Processus parent
+    else: #parent
         if not background:
             _, status = os.waitpid(pid, 0)
             print(f"Commande {cmd} executée avec le PID: {pid}, Code de retour: {os.WEXITSTATUS(status)}")
