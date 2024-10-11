@@ -21,8 +21,8 @@ while cmd != "quit":
     else: #parent
         if not background:
             _, status = os.waitpid(pid, 0)
-            print(f"Commande {cmd} executée avec le PID: {pid}, Code de retour: {os.WEXITSTATUS(status)}")
+            print(f"Commande {cmd} executée premier plan avec le PID: {pid}, Code de retour: {os.WEXITSTATUS(status)}")
         else:
-            print(f"Commande exécutée en arrière-plan avec PID: {pid}")
+            print(f"Commande en arrière-plan avec PID: {pid}")
 
     cmd = input("$ ")
