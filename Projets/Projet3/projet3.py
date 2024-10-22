@@ -4,61 +4,58 @@ import time
 import sys
 
 # Liste des processus prêts
-process_list = []
-current_process = 0
+liste_processus = []
+processus_actuel = 0
 
-def fin(signum, frame):
+def fin_programme(signum, frame):  # tue tous les processus et quitte
     os.write(1, b"Fin du programme\n")
-    global process_list
-    for pid in process_list:
+    global liste_processus
+    for pid in liste_processus:
         os.kill(pid, signal.SIGKILL)
     sys.exit(0)
 
-def creation_process(signum, frame):
-    global process_list
+def creation_processus(signum, frame):
+    global liste_processus
 
     pid = os.fork()
-    if pid == 0: #fils
-        # on suspend le processus fils
-        os.kill(os.getpid(), signal.SIGSTOP)
+    if pid == 0:  # fils
+        os.kill(os.getpid(), signal.SIGSTOP)  # Suspend le processus enfant immédiatement
         while True:
-            print(f"Processus {os.getpid()} en cours d'exécution")
+            os.write(1, f"Processus {os.getpid()} en cours d'exécution\n".encode())
             time.sleep(3)
-
-    else: #pere
-        process_list.append(pid)
-        print("Liste des processus après ajout :", process_list)
-        if len(process_list) == 1:
+    else:  # père
+        liste_processus.append(pid)
+        print("Liste des processus après ajout :", liste_processus)
+        if len(liste_processus) == 1:
             # Démarrer le premier processus immédiatement
-            os.kill(process_list[0], signal.SIGCONT)
+            os.kill(liste_processus[0], signal.SIGCONT)
             signal.alarm(15)
 
+def changement_processus(signum, frame):
+    global processus_actuel
+    global liste_processus
 
-
-def changement_process(signum, frame):
-    global current_process
-    global process_list
-
-    if process_list:
+    if liste_processus:
         # Arrêter le processus actuel
-        print(f"Arrêt du processus {process_list[current_process]}")
-        os.kill(process_list[current_process], signal.SIGSTOP)
+        print(f"Arrêt du processus {liste_processus[processus_actuel]}")
+        os.kill(liste_processus[processus_actuel], signal.SIGSTOP)
 
         # Passer au processus suivant
-        current_process = (current_process + 1) % len(process_list)
+        processus_actuel += 1
+        if processus_actuel >= len(liste_processus):
+            processus_actuel = 0
 
         # Démarrer le nouveau processus
-        print(f"Démarrage du processus {process_list[current_process]}")
-        os.kill(process_list[current_process], signal.SIGCONT)
+        print(f"Démarrage du processus {liste_processus[processus_actuel]}")
+        os.kill(liste_processus[processus_actuel], signal.SIGCONT)
 
         # Réarmer l'alarme pour 15 secondes
         signal.alarm(15)
 
-
 # Initialiser les gestionnaires de signaux
-signal.signal(signal.SIGINT, creation_process)
-signal.signal(signal.SIGALRM, changement_process)
-signal.signal(signal.SIGTERM, fin)
+signal.signal(signal.SIGINT, creation_processus)
+signal.signal(signal.SIGALRM, changement_processus)
+signal.signal(signal.SIGTERM, fin_programme)
 
 print(f"PID du père : {os.getpid()}")
 print("Utilisez 'kill -SIGINT <PID>' pour créer des processus")
